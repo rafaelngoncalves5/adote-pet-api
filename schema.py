@@ -34,7 +34,7 @@ class Animal(BaseModel):
     raca = CharField(max_length=150)
     genero = CharField(max_length=150)
     nome_completo = CharField(max_length=150)
-    data_de_nascimento = TimestampField()
+    data_de_nascimento = TimestampField(null=True)
     flag_castrado = BooleanField(default=False)
     usuario_id = ForeignKeyField(Usuario, backref='usuario')
     data_de_criacao = TimestampField(default=datetime.now())
