@@ -6,8 +6,6 @@ from fastapi import HTTPException
 
 from schema import Animal, Usuario
 
-genero_tuple = ('Masculino', 'Feminino', 'Outro')
-
 class PyAnimal(BaseModel):
     tipo: str
     raca: str
