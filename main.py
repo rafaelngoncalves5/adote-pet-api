@@ -1,6 +1,8 @@
 from typing import Union
 from fastapi import FastAPI
 
+import schema
+
 app = FastAPI()
 
 @app.get("/")
@@ -25,8 +27,16 @@ def read_home():
         }
 
 # CRUD de animais
-@app.get('/pets/read')
+@app.get('/pet/read')
 def read_pet():
-    return {
-
-    }
+    for animal in schema.Animal.select():
+        return {
+            "Id": animal.id,
+            "Nome completo": animal.nome_completo,
+            "Tipo": animal.tipo,
+            "Raça": animal.raca,
+            "Gênero": animal.genero,
+            "Data de nascimento": animal.data_de_nascimento,
+            "Dono: ": animal.usuario_id,
+            "Data de criação": animal.data_de_criacao,
+        }
