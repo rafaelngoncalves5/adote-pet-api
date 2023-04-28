@@ -1,7 +1,7 @@
 from typing import Union
 from fastapi import FastAPI
 
-import schema
+from schema import Animal, Usuario
 
 app = FastAPI()
 
@@ -10,9 +10,10 @@ def read_home():
     welcome_msg = "Bem vindo ao adote seu pet! 🐶"
     intro_msg = "Os endpoints disponiíveis são:"
     home_url = "/"
-    read_pet_url = "/read_pet",
-    create_pet_url = "/create_pet",
-    update_pet_url = "/update_pet",
+    read_pet_url = "/pet/read",
+    detail_pet_url = "/pet/{id}/details",
+    create_pet_url = "/pet/create",
+    update_pet_url = "/pet/update",
     delete_pet_url = "/delete_pet",
 
     return {
@@ -20,17 +21,42 @@ def read_home():
         "Introdução": intro_msg,
         "Home (GET)": home_url,
         "Listagem de pets (GET)": read_pet_url,
+        "Detalhes (GET)": detail_pet_url,
         "Criação de pets (POST)": create_pet_url,
         "Alteração de pets (PUT)": update_pet_url,
         "Exclusão de pets (DELETE): ": delete_pet_url,
         # ...
         }
 
-# CRUD de animais
+# Detalhes
+@app.get('/pet/{id}/details')
+def detail_pet(id: int):
+    animal = Animal.get(id == id)
+    
+    return {
+        "Id": animal.id,
+        "Tipo": animal.tipo,
+        "Raça": animal.raca,
+        "Gênero": animal.genero,
+        "Nome completo": animal.nome_completo,
+        "Data de nascimento": animal.data_de_nascimento,
+        "Castrado": animal.flag_castrado,
+        "Dono": animal.usuario_id,
+        "Data de criação": animal.data_de_criacao   
+    }
+
+# === CRUD de animais ===
+    
+# Create
+@app.post('/pet/create')
+def create_pet():
+    pass
+
+# Read
 @app.get('/pet/read')
 def read_pet():
     my_list = list()
-    for animal in schema.Animal.select():
+    for animal in Animal.select():
         my_list.append({
             animal.id: {
                 "Id": animal.id,
@@ -44,6 +70,7 @@ def read_pet():
             },
         })
     return my_list
-        
+
+
 # print(schema.shaolin_pig_killer)
 # print(schema.baby_eater)
