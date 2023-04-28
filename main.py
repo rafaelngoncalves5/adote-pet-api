@@ -189,7 +189,20 @@ def update_pet(id: int, animal: PyAnimalOptional):
         return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"}
 
 # Delete
+@app.get('/pet/delete')
+def delete_pet_get():
+    return "Bem vindo a URL para a exclusão de pets. Para excluir um pet, envie uma query com o 'id' do animal que deseja excluir com o método 'DELETE'! ",
 
+@app.delete('/pet/delete')
+def delete_pet(id: int):
+    # Pega o objeto com id = id
+    pet = Animal.get(id = id)
 
-# print(schema.shaolin_pig_killer)
-# print(schema.baby_eater)
+    # Excluir
+    pet.delete_instance()
+
+    # Feedback
+    return {
+        'status': 200, 
+        'msg': str(pet) + " excluído com sucesso! "
+    }
