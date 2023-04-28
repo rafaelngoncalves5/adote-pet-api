@@ -4,7 +4,7 @@ from fastapi import FastAPI
 app = FastAPI()
 
 @app.get("/")
-def read_root():
+def read_home():
     welcome_msg = "Bem vindo ao adote seu pet! 🐶"
     intro_msg = "Os endpoints disponiíveis são:"
     home_url = "/"
@@ -25,6 +25,8 @@ def read_root():
         }
 
 # CRUD de animais
-@app.get("/{id}")
-def read_id(id: int):
-    return {"msg": "Retornando objeto " + str(id)}
+@app.get('/pets/read')
+def read_pet():
+    return {
+
+    }
