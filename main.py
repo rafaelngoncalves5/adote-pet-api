@@ -31,7 +31,7 @@ def read_home():
 # Detalhes
 @app.get('/pet/{id}/details')
 def detail_pet(id: int):
-    animal = Animal.get(id == id)
+    animal = Animal.get(id = id)
     
     return {
         "Id": animal.id,
