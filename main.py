@@ -2,6 +2,7 @@ from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import date, datetime
+from fastapi import HTTPException
 
 from schema import Animal, Usuario
 
@@ -15,6 +16,15 @@ class PyAnimal(BaseModel):
     data_de_nascimento: date | None
     flag_castrado: bool
     usuario_id: int
+
+class PyAnimalOptional(BaseModel):
+    tipo: str | None
+    raca: str | None
+    genero: str | None
+    nome_completo: str | None
+    data_de_nascimento: date | None
+    flag_castrado: bool | None
+    usuario_id: int | None
 
 app = FastAPI()
 
@@ -64,14 +74,14 @@ def detail_pet(id: int):
 @app.get('/pet/create')
 def create_pet_get():
     return {
-        "Bem vindo": "Bem vindo a URL para criação de pets. Para criar um pet, envie um JSON, com o seguintes dados: ",
+        "Bem vindo": "Bem vindo a URL para criação de pets. Para criar um pet, envie um JSON (POST), com o seguintes dados: ",
         "tipo": "Tipo do animal (string)",
         "raca": "Raça do animal (string)",
         "genero": "Masculino, Feminino ou Outro (enum/string/tuple)",
         "nome_completo": "Nome completo do animal (string)",
         "data_de_nascimento": "Data de nascimento do animal (string/date). Envie uma string no seguinte formato: YY-MM-DD. Por exemplo: 2020-04-20",
         "flag_castrado": "O animal foi castrado (boolean)?",
-        "usuario_id": "A qual usuário este animal pertence"
+        "usuario_id": "A qual usuário este animal pertence (int)"
         }
 
 @app.post('/pet/create')
@@ -111,6 +121,74 @@ def read_pet():
             },
         })
     return my_list
+
+# Update
+@app.get('/pet/update')
+def update_pet_get():
+        return {
+            "Bem vindo": "Bem vindo a URL para a alteração de pets. Para alterar um pet, envie uma query com o 'id' do animal que deseja alterar (PUT). Envie também, um JSON, com o seguintes dados: ",
+            "tipo": "Tipo do animal (string)",
+            "raca": "Raça do animal (string)",
+            "genero": "Masculino, Feminino ou Outro (enum/string/tuple)",
+            "nome_completo": "Nome completo do animal (string)",
+            "data_de_nascimento": "Data de nascimento do animal (string/date). Envie uma string no seguinte formato: YY-MM-DD. Por exemplo: 2020-04-20",
+            "flag_castrado": "O animal foi castrado (boolean)?",
+            "usuario_id": "A qual usuário este animal pertence (int)"
+        }
+
+@app.put('/pet/update')
+def update_pet(id: int, animal: PyAnimalOptional):
+    try:
+        # Pega o pet:
+        pet = Animal.get(id = id)
+        # Passa os dados anteriores ao pet, em caso de não alterarmos:
+        if animal.tipo == None or animal.tipo == "" or animal.tipo == " ":
+            pet.tipo = pet.tipo
+        else:
+            pet.tipo = animal.tipo
+            
+        if animal.raca == None or animal.raca == "" or animal.raca == " ":            
+            pet.raca = pet.raca
+        else:
+            pet.raca = animal.raca
+
+        if animal.genero == None or animal.genero == "" or animal.genero == " ":            
+            pet.genero = pet.genero
+        else:
+            pet.genero = animal.genero
+
+        if animal.nome_completo == None or animal.nome_completo == "" or animal.nome_completo == " ":            
+            pet.nome_completo = pet.nome_completo
+        else:
+            pet.nome_completo = animal.nome_completo
+
+        if animal.data_de_nascimento == None or animal.data_de_nascimento == "" or animal.data_de_nascimento == " ":            
+            pet.data_de_nascimento = pet.data_de_nascimento
+        else:
+            pet.data_de_nascimento = animal.data_de_nascimento
+
+        if animal.flag_castrado == None or animal.flag_castrado == "" or animal.flag_castrado == " ":            
+            pet.flag_castrado = pet.flag_castrado
+        else:
+            pet.flag_castrado = animal.flag_castrado
+
+        if animal.usuario_id == None or animal.usuario_id == "" or animal.usuario_id == " ":            
+            pet.usuario_id = pet.usuario_id
+        else:
+            pet.usuario_id = animal.usuario_id
+
+        # Salva o pet alterado
+        pet.save()
+
+        # Retorna sucesso:
+        return {"{}, alterado com sucesso!".format(pet)} 
+
+    except TypeError:
+        return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"}
+    except ValueError:
+        return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"}
+
+# Delete
 
 
 # print(schema.shaolin_pig_killer)
