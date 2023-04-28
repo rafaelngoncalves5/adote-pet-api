@@ -29,14 +29,21 @@ def read_home():
 # CRUD de animais
 @app.get('/pet/read')
 def read_pet():
+    my_list = list()
     for animal in schema.Animal.select():
-        return {
-            "Id": animal.id,
-            "Nome completo": animal.nome_completo,
-            "Tipo": animal.tipo,
-            "Raça": animal.raca,
-            "Gênero": animal.genero,
-            "Data de nascimento": animal.data_de_nascimento,
-            "Dono: ": animal.usuario_id,
-            "Data de criação": animal.data_de_criacao,
-        }
+        my_list.append({
+            animal.id: {
+                "Id": animal.id,
+                "Nome completo": animal.nome_completo,
+                "Tipo": animal.tipo,
+                "Raça": animal.raca,
+                "Gênero": animal.genero,
+                "Data de nascimento": animal.data_de_nascimento,
+                "Dono: ": animal.usuario_id,
+                "Data de criação": animal.data_de_criacao,
+            },
+        })
+    return my_list
+        
+# print(schema.shaolin_pig_killer)
+# print(schema.baby_eater)
