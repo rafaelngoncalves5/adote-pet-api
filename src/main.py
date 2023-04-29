@@ -58,7 +58,7 @@ def read_home():
     create_pet_url = "/pet/create",
     read_pet_url = "/pet/read",
     update_pet_url = "/pet/update?id=",
-    delete_pet_url = "/delete_pet?id=",
+    delete_pet_url = "/pet/delete/pet?id=",
 
     detail_pet_url = "/pet/{id}/details",
 
@@ -215,21 +215,24 @@ def update_pet(id: int, animal: PyAnimalOptional):
 # Delete
 @app.get('/pet/delete')
 def delete_pet_get():
-    return "Bem vindo a URL para a exclusão de pets. Para excluir um pet, envie uma query com o 'id' do animal que deseja excluir com o método 'DELETE'! ",
+    return "Bem vindo a URL para a exclusão de pets. Para excluir um pet, envie uma query com o 'id' do animal que deseja excluir, usando o método 'DELETE'! ",
 
 @app.delete('/pet/delete')
 def delete_pet(id: int):
     # Pega o objeto com id = id
     pet = Animal.get(id = id)
 
-    # Excluir
-    pet.delete_instance()
-
-    # Feedback
-    return {
-        'status': 200, 
-        'msg': str(pet) + " excluído com sucesso! "
-    }
+    if pet:
+        # Excluir
+        pet.delete_instance()
+        
+        # Feedback
+        return {
+            "status": "200 OK", 
+            "msg": str(pet) + " excluído com sucesso! "
+            }
+    else:
+        raise HTTPException(404)
 
 # Detalhes
 @app.get('/pet/{id}/details')
@@ -249,7 +252,7 @@ def detail_pet(id: int):
             "Data de criação": animal.data_de_criacao   
         }
     else:
-        raise HTTPException("Animal não encontrado! ", 404)
+        raise HTTPException(404)
 
 # === CRUD de usuários ===
 
@@ -309,4 +312,24 @@ def read_user(id: int):
             "Data de criação": user.data_de_criacao   
             }
     else:
-        raise HTTPException("Usuário não encontrado! ", 404)
+        raise HTTPException(404)
+
+
+
+
+@app.delete('/user/delete')
+def delete_user(id: int):
+    user = Usuario.get(id = id)
+
+    if user:
+        # Excluir
+        user.delete_instance()
+        
+        # Feedback
+        return {
+            "status": "200 OK", 
+            "msg": str(user) + " excluído com sucesso! "
+            }
+    else:
+        raise HTTPException(404)
+
