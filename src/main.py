@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import date, datetime
 from fastapi import HTTPException
+import bcrypt
 
 from schema import Animal, Usuario
 
@@ -108,6 +109,7 @@ def create_pet_get():
 @app.post('/pet/create')
 def create_pet(animal: PyAnimal):
     try:
+
         new_animal = Animal.create(
             tipo=animal.tipo,
             raca=animal.raca,
@@ -167,37 +169,37 @@ def update_pet(id: int, animal: PyAnimalOptional):
 
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
         if animal.tipo == None or animal.tipo == "" or animal.tipo == " ":
-            pet.tipo = pet.tipo
+            pass
         else:
             pet.tipo = animal.tipo
             
         if animal.raca == None or animal.raca == "" or animal.raca == " ":            
-            pet.raca = pet.raca
+            pass
         else:
             pet.raca = animal.raca
 
         if animal.genero == None or animal.genero == "" or animal.genero == " ":            
-            pet.genero = pet.genero
+            pass
         else:
             pet.genero = animal.genero
 
         if animal.nome_completo == None or animal.nome_completo == "" or animal.nome_completo == " ":            
-            pet.nome_completo = pet.nome_completo
+            pass
         else:
             pet.nome_completo = animal.nome_completo
 
         if animal.data_de_nascimento == None or animal.data_de_nascimento == "" or animal.data_de_nascimento == " ":            
-            pet.data_de_nascimento = pet.data_de_nascimento
+            pass
         else:
             pet.data_de_nascimento = animal.data_de_nascimento
 
         if animal.flag_castrado == None or animal.flag_castrado == "" or animal.flag_castrado == " ":            
-            pet.flag_castrado = pet.flag_castrado
+            pass
         else:
             pet.flag_castrado = animal.flag_castrado
 
         if animal.usuario_id == None or animal.usuario_id == "" or animal.usuario_id == " ":            
-            pet.usuario_id = pet.usuario_id
+            pass
         else:
             pet.usuario_id = animal.usuario_id
 
@@ -274,6 +276,10 @@ def create_user_get():
 
 @app.post('/user/create')
 def create_user(user: PyUsuario):
+
+    # Criptografa a senha antes de instanciar
+    hashed = bcrypt.hashpw(bytes(user.senha, 'utf-8'), bcrypt.gensalt())
+
     try:
         new_user = Usuario.create(
             nome_completo=user.nome_completo,
@@ -284,7 +290,7 @@ def create_user(user: PyUsuario):
             cep=user.cep,
             data_de_nascimento=user.data_de_nascimento,
             login=user.login,
-            senha=user.senha
+            senha=hashed
         )
         return {"Usuário {} criado com sucesso!".format(new_user)}
     
@@ -340,49 +346,51 @@ def update_user(id: int, user: PyUsuarioOptional):
 
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
         if user.nome_completo == None or user.nome_completo == "" or user.nome_completo == " ":
-            usuario.nome_completo = usuario.nome_completo
+            pass
         else:
             usuario.nome_completo = user.nome_completo
             
         if user.email == None or user.email == "" or user.email == " ":            
-            usuario.email = usuario.email
+            pass
         else:
             usuario.email = user.email
 
         if user.telefone == None or user.telefone == "" or user.telefone == " ":            
-            usuario.telefone = usuario.telefone
+            pass
         else:
             usuario.telefone = user.telefone
 
         if user.cpf == None or user.cpf == "" or user.cpf == " ":            
-            usuario.cpf = usuario.cpf
+            pass
         else:
             usuario.cpf = user.cpf
 
         if user.complemento == None or user.complemento == "" or user.complemento == " ":            
-            usuario.complemento = usuario.complemento
+            pass
         else:
             usuario.complemento = user.complemento 
 
         if user.cep == None or user.cep == "" or user.cep == " ":            
-            usuario.cep = usuario.cep
+            pass
         else:
             usuario.cep = user.cep
 
         if user.data_de_nascimento == None or user.data_de_nascimento == "" or user.data_de_nascimento == " ":            
-            usuario.data_de_nascimento = usuario.data_de_nascimento
+            pass
         else:
             usuario.data_de_nascimento = user.data_de_nascimento
 
         if user.login == None or user.login == "" or user.login == " ":            
-            usuario.login = usuario.login
+            pass
         else:
             usuario.login = user.login
 
         if user.senha == None or user.senha == "" or user.senha == " ":            
-            usuario.senha = usuario.senha
+            pass
         else:
-            usuario.senha = user.senha
+            # Criptografando a senha
+            hashed = bcrypt.hashpw(bytes(user.senha, 'utf-8'), bcrypt.gensalt())
+            usuario.senha = hashed
 
         # Salva o usuário alterado
         usuario.save()
@@ -394,7 +402,6 @@ def update_user(id: int, user: PyUsuarioOptional):
         raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!")
     except ValueError:
         raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!")
-
 
 # Delete
 @app.delete('/user/delete')
