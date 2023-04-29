@@ -330,64 +330,73 @@ def update_user_get():
             "senha": "Senha do usuário (string)",
             }
 
-'''@app.put('/pet/update')
-def update_pet(id: int, animal: PyAnimalOptional):
+@app.put('/user/update')
+def update_user(id: int, user: PyUsuarioOptional):
     try:
-        # Pega o pet:
-        pet = Animal.get(id = id)
-        if not pet:
+        # Pega o usuário:
+        usuario = Usuario.get(id = id)
+        if not user:
             raise HTTPException(404)
 
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
-        if animal.tipo == None or animal.tipo == "" or animal.tipo == " ":
-            pet.tipo = pet.tipo
+        if user.nome_completo == None or user.nome_completo == "" or user.nome_completo == " ":
+            usuario.nome_completo = usuario.nome_completo
         else:
-            pet.tipo = animal.tipo
+            usuario.nome_completo = user.nome_completo
             
-        if animal.raca == None or animal.raca == "" or animal.raca == " ":            
-            pet.raca = pet.raca
+        if user.email == None or user.email == "" or user.email == " ":            
+            usuario.email = usuario.email
         else:
-            pet.raca = animal.raca
+            usuario.email = user.email
 
-        if animal.genero == None or animal.genero == "" or animal.genero == " ":            
-            pet.genero = pet.genero
+        if user.telefone == None or user.telefone == "" or user.telefone == " ":            
+            usuario.telefone = usuario.telefone
         else:
-            pet.genero = animal.genero
+            usuario.telefone = user.telefone
 
-        if animal.nome_completo == None or animal.nome_completo == "" or animal.nome_completo == " ":            
-            pet.nome_completo = pet.nome_completo
+        if user.cpf == None or user.cpf == "" or user.cpf == " ":            
+            usuario.cpf = usuario.cpf
         else:
-            pet.nome_completo = animal.nome_completo
+            usuario.cpf = user.cpf
 
-        if animal.data_de_nascimento == None or animal.data_de_nascimento == "" or animal.data_de_nascimento == " ":            
-            pet.data_de_nascimento = pet.data_de_nascimento
+        if user.complemento == None or user.complemento == "" or user.complemento == " ":            
+            usuario.complemento = usuario.complemento
         else:
-            pet.data_de_nascimento = animal.data_de_nascimento
+            usuario.complemento = user.complemento 
 
-        if animal.flag_castrado == None or animal.flag_castrado == "" or animal.flag_castrado == " ":            
-            pet.flag_castrado = pet.flag_castrado
+        if user.cep == None or user.cep == "" or user.cep == " ":            
+            usuario.cep = usuario.cep
         else:
-            pet.flag_castrado = animal.flag_castrado
+            usuario.cep = user.cep
 
-        if animal.usuario_id == None or animal.usuario_id == "" or animal.usuario_id == " ":            
-            pet.usuario_id = pet.usuario_id
+        if user.data_de_nascimento == None or user.data_de_nascimento == "" or user.data_de_nascimento == " ":            
+            usuario.data_de_nascimento = usuario.data_de_nascimento
         else:
-            pet.usuario_id = animal.usuario_id
+            usuario.data_de_nascimento = user.data_de_nascimento
 
-        # Salva o pet alterado
-        pet.save()
+        if user.login == None or user.login == "" or user.login == " ":            
+            usuario.login = usuario.login
+        else:
+            usuario.login = user.login
+
+        if user.senha == None or user.senha == "" or user.senha == " ":            
+            usuario.senha = usuario.senha
+        else:
+            usuario.senha = user.senha
+
+        # Salva o usuário alterado
+        usuario.save()
 
         # Retorna sucesso:
-        return {"{}, alterado com sucesso!".format(pet)} 
+        return {"{}, alterado com sucesso!".format(usuario)} 
 
     except TypeError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!")
     except ValueError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")'''
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!")
 
 
 # Delete
-
 @app.delete('/user/delete')
 def delete_user(id: int):
     user = Usuario.get(id = id)
