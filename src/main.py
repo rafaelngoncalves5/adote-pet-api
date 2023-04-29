@@ -24,6 +24,28 @@ class PyAnimalOptional(BaseModel):
     flag_castrado: bool | None
     usuario_id: int | None
 
+class PyUsuario(BaseModel):
+    nome_completo: str
+    email: str
+    telefone: str
+    cpf: str | None
+    complemento: str | None
+    cep: str | None
+    data_de_nascimento: date
+    login: str
+    senha: str
+
+class PyUsuarioOptional(BaseModel):
+    nome_completo: str | None
+    email: str | None
+    telefone: str | None
+    cpf: str | None
+    complemento: str | None
+    cep: str | None
+    data_de_nascimento: date | None
+    login: str | None
+    senha: str | None
+
 app = FastAPI()
 
 @app.get("/")
@@ -98,9 +120,9 @@ def create_pet(animal: PyAnimal):
         return {"Animal {} criado com sucesso!".format(new_animal)}
     
     except TypeError:
-        return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/read (GET)!"}
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/read (GET)!")
     except ValueError:
-        return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/read (GET)!"}
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/read (GET)!")
 
 # Read
 @app.get('/pet/read')
@@ -140,6 +162,9 @@ def update_pet(id: int, animal: PyAnimalOptional):
     try:
         # Pega o pet:
         pet = Animal.get(id = id)
+        if not pet:
+            raise HTTPException(404)
+
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
         if animal.tipo == None or animal.tipo == "" or animal.tipo == " ":
             pet.tipo = pet.tipo
@@ -183,9 +208,9 @@ def update_pet(id: int, animal: PyAnimalOptional):
         return {"{}, alterado com sucesso!".format(pet)} 
 
     except TypeError:
-        return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"}
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")
     except ValueError:
-        return {"erro": TypeError, "msg": "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"}
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")
 
 # Delete
 @app.get('/pet/delete')
@@ -211,20 +236,77 @@ def delete_pet(id: int):
 def detail_pet(id: int):
     animal = Animal.get(id = id)
     
+    if animal:
+        return {
+            "Id": animal.id,
+            "Tipo": animal.tipo,
+            "Raça": animal.raca,
+            "Gênero": animal.genero,
+            "Nome completo": animal.nome_completo,
+            "Data de nascimento": animal.data_de_nascimento,
+            "Castrado": animal.flag_castrado,
+            "Dono": animal.usuario_id,
+            "Data de criação": animal.data_de_criacao   
+        }
+    else:
+        raise HTTPException("Animal não encontrado! ", 404)
+
+# === CRUD de usuários ===
+
+# Create
+@app.get('/user/create')
+def create_user_get():
     return {
-        "Id": animal.id,
-        "Tipo": animal.tipo,
-        "Raça": animal.raca,
-        "Gênero": animal.genero,
-        "Nome completo": animal.nome_completo,
-        "Data de nascimento": animal.data_de_nascimento,
-        "Castrado": animal.flag_castrado,
-        "Dono": animal.usuario_id,
-        "Data de criação": animal.data_de_criacao   
+        "Bem vindo": "Bem vindo a URL para criação de usuários! Para criar um usuário, envie usando o método POST, uma requisição para este endpoint, com os seguintes dados: ",
+        "nome_completo": "Nome completo do usuário (string)",
+        "email": "Email do usuário (string)",
+        "telefone": "Telefone do usuário (string)",
+        "cpf": "CPF do usuário (string)",
+        "complemento": "Dados complementares ao endereço do usuário (string)",
+        "cep": "CEP do usuário (string)",
+        "data_de_nascimento": "Data de nascimento do usuário (string/date). Envie uma string no seguinte formato: YY-MM-DD. Por exemplo: 2020-04-20",
+        "login": "Login/Username do usuário (string)",
+        "senha": "Senha do usuário (string)",
     }
 
-# # === CRUD de usuários ===
+@app.post('/user/create')
+def create_user(user: PyUsuario):
+    try:
+        new_user = Usuario.create(
+            nome_completo=user.nome_completo,
+            email=user.email,
+            telefone=user.telefone,
+            cpf=user.cpf,
+            complemento=user.complemento,
+            cep=user.cep,
+            data_de_nascimento=user.data_de_nascimento,
+            login=user.login,
+            senha=user.senha
+        )
+        return {"Usuário {} criado com sucesso!".format(new_user)}
+    
+    except TypeError:
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!")
+    except ValueError:
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!")
+    
 
-@app.post('/user/')
-def ini():
-    raise NotImplemented('')
+@app.get('/user/{id}')
+def read_user(id: int):
+    user = Usuario.get(id = id)
+
+    if user:
+        return {
+            "Id": user.id,
+            "Nome completo": user.nome_completo,
+            "Email": user.email,
+            "Telefone": user.telefone,
+            "CPF": user.cpf,
+            "Complemento": user.complemento,
+            "CEP": user.cep,
+            "Data de nascimento": user.data_de_nascimento,
+            "Login": user.login,
+            "Data de criação": user.data_de_criacao   
+            }
+    else:
+        raise HTTPException("Usuário não encontrado! ", 404)
