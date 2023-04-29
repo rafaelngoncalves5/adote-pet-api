@@ -85,7 +85,7 @@ def read_home():
         "Cadastro de usuários (GET/POST)": [create_user_url],
         "Leitura de usuário (GET)": [read_user_url],
         "Atualização de usuário (GET/UPDATE)": [update_user_url],
-        "Exclusão de usuário (GET/DELETE)": [delete_user_url]
+        "Exclusão de usuário (DELETE)": [delete_user_url]
         # ...
         }
 
@@ -293,8 +293,8 @@ def create_user(user: PyUsuario):
     except ValueError:
         raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!")
     
-
-@app.get('/user/{id}')
+# Read
+@app.get("/user/{id}/")
 def read_user(id: int):
     user = Usuario.get(id = id)
 
@@ -314,8 +314,79 @@ def read_user(id: int):
     else:
         raise HTTPException(404)
 
+# Update
+@app.get('/user/update')
+def update_user_get():
+        return {
+            "Bem vindo": "Bem vindo a URL para a alteração de usuário. Para alterar um usuário, envie uma query com o 'id' do usuário que deseja alterar (PUT). Envie também, um JSON, com o seguintes dados: ",
+            "nome_completo": "Nome completo do usuário (string)",
+            "email": "Email do usuário (string)",
+            "telefone": "Telefone do usuário (string)",
+            "cpf": "CPF do usuário (string)",
+            "complemento": "Dados complementares ao endereço do usuário (string)",
+            "cep": "CEP do usuário (string)",
+            "data_de_nascimento": "Data de nascimento do usuário (string/date). Envie uma string no seguinte formato: YY-MM-DD. Por exemplo: 2020-04-20",
+            "login": "Login/Username do usuário (string)",
+            "senha": "Senha do usuário (string)",
+            }
+
+'''@app.put('/pet/update')
+def update_pet(id: int, animal: PyAnimalOptional):
+    try:
+        # Pega o pet:
+        pet = Animal.get(id = id)
+        if not pet:
+            raise HTTPException(404)
+
+        # Passa os dados anteriores ao pet, em caso de não alterarmos:
+        if animal.tipo == None or animal.tipo == "" or animal.tipo == " ":
+            pet.tipo = pet.tipo
+        else:
+            pet.tipo = animal.tipo
+            
+        if animal.raca == None or animal.raca == "" or animal.raca == " ":            
+            pet.raca = pet.raca
+        else:
+            pet.raca = animal.raca
+
+        if animal.genero == None or animal.genero == "" or animal.genero == " ":            
+            pet.genero = pet.genero
+        else:
+            pet.genero = animal.genero
+
+        if animal.nome_completo == None or animal.nome_completo == "" or animal.nome_completo == " ":            
+            pet.nome_completo = pet.nome_completo
+        else:
+            pet.nome_completo = animal.nome_completo
+
+        if animal.data_de_nascimento == None or animal.data_de_nascimento == "" or animal.data_de_nascimento == " ":            
+            pet.data_de_nascimento = pet.data_de_nascimento
+        else:
+            pet.data_de_nascimento = animal.data_de_nascimento
+
+        if animal.flag_castrado == None or animal.flag_castrado == "" or animal.flag_castrado == " ":            
+            pet.flag_castrado = pet.flag_castrado
+        else:
+            pet.flag_castrado = animal.flag_castrado
+
+        if animal.usuario_id == None or animal.usuario_id == "" or animal.usuario_id == " ":            
+            pet.usuario_id = pet.usuario_id
+        else:
+            pet.usuario_id = animal.usuario_id
+
+        # Salva o pet alterado
+        pet.save()
+
+        # Retorna sucesso:
+        return {"{}, alterado com sucesso!".format(pet)} 
+
+    except TypeError:
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")
+    except ValueError:
+        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")'''
 
 
+# Delete
 
 @app.delete('/user/delete')
 def delete_user(id: int):
@@ -332,4 +403,3 @@ def delete_user(id: int):
             }
     else:
         raise HTTPException(404)
-
