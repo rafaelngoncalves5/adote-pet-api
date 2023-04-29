@@ -31,40 +31,41 @@ def read_home():
     welcome_msg = "Bem vindo ao adote seu pet! 🐶"
     intro_msg = "Os endpoints disponiíveis são:"
     home_url = "/"
-    read_pet_url = "/pet/read",
-    detail_pet_url = "/pet/{id}/details",
+
+    # CRUD de animal
     create_pet_url = "/pet/create",
-    update_pet_url = "/pet/update",
-    delete_pet_url = "/delete_pet",
+    read_pet_url = "/pet/read",
+    update_pet_url = "/pet/update?id=",
+    delete_pet_url = "/delete_pet?id=",
+
+    detail_pet_url = "/pet/{id}/details",
+
+    # CRUD de usuário
+    create_user_url = "/user/create"
+    read_user_url = "/user/{id}"
+    update_user_url = "/user/update?id="
+    delete_user_url = "/user/delete?id="
 
     return {
+
+        # CRUD de animal
         "Bem vindo": welcome_msg,
         "Introdução": intro_msg,
-        "Home (GET)": home_url,
-        "Listagem de pets (GET)": read_pet_url,
-        "Detalhes (GET)": detail_pet_url,
-        "Criação de pets (GET/POST)": create_pet_url,
-        "Alteração de pets (GET/PUT)": update_pet_url,
-        "Exclusão de pets (GET/DELETE): ": delete_pet_url,
+        "Home (GET)": [home_url],
+        "Listagem de pets (GET)": [read_pet_url],
+        "Criação de pets (GET/POST)": [create_pet_url],
+        "Alteração de pets (GET/PUT)": [update_pet_url],
+        "Exclusão de pets (GET/DELETE): ": [delete_pet_url],
+
+        "Detalhes (GET)": [detail_pet_url],
+
+        # CRUD de usuário
+        "Cadastro de usuários (GET/POST)": [create_user_url],
+        "Leitura de usuário (GET)": [read_user_url],
+        "Atualização de usuário (GET/UPDATE)": [update_user_url],
+        "Exclusão de usuário (GET/DELETE)": [delete_user_url]
         # ...
         }
-
-# Detalhes
-@app.get('/pet/{id}/details')
-def detail_pet(id: int):
-    animal = Animal.get(id = id)
-    
-    return {
-        "Id": animal.id,
-        "Tipo": animal.tipo,
-        "Raça": animal.raca,
-        "Gênero": animal.genero,
-        "Nome completo": animal.nome_completo,
-        "Data de nascimento": animal.data_de_nascimento,
-        "Castrado": animal.flag_castrado,
-        "Dono": animal.usuario_id,
-        "Data de criação": animal.data_de_criacao   
-    }
 
 # === CRUD de animais ===
     
@@ -204,3 +205,26 @@ def delete_pet(id: int):
         'status': 200, 
         'msg': str(pet) + " excluído com sucesso! "
     }
+
+# Detalhes
+@app.get('/pet/{id}/details')
+def detail_pet(id: int):
+    animal = Animal.get(id = id)
+    
+    return {
+        "Id": animal.id,
+        "Tipo": animal.tipo,
+        "Raça": animal.raca,
+        "Gênero": animal.genero,
+        "Nome completo": animal.nome_completo,
+        "Data de nascimento": animal.data_de_nascimento,
+        "Castrado": animal.flag_castrado,
+        "Dono": animal.usuario_id,
+        "Data de criação": animal.data_de_criacao   
+    }
+
+# # === CRUD de usuários ===
+
+@app.post('/user/')
+def ini():
+    raise NotImplemented('')
