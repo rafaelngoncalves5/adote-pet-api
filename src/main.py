@@ -58,6 +58,12 @@ app = FastAPI()
 not_found_msg = {"status": "404 Not Found", "msg": "Recurso não encontrado!"}
 ok_msg = {"status": "200 OK", "msg": "Sucesso!"}
 
+def criptografar_senha(password, hashed):
+    if bcrypt.checkpw(password, hashed):
+        return True
+    else:
+        return False
+
 @app.get("/")
 def read_home():
     welcome_msg = "Bem vindo a API do adote seu pet! 🐶"
@@ -451,11 +457,10 @@ def login(user: PyLogin):
         # Se o usuário existir:
         if usuario:
             # Verifica se a senha está correta
-            if user.senha == usuario.senha:
-                pass
-        else:
-            return "Login ou senha incorreto(s)!"
+            if criptografar_senha(bytes(user.senha, encoding='utf-8'), bytes(usuario.senha, encoding='utf-8')):
+                return ok_msg
+            else:
+                return "Login ou senha incorreto(s)!"
         
     except schema.DoesNotExist:
         return "Login ou senha incorreto(s)!"
-
