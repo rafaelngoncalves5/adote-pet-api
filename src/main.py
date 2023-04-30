@@ -58,7 +58,7 @@ app = FastAPI()
 not_found_msg = {"status": "404 Not Found", "msg": "Recurso não encontrado!"}
 ok_msg = {"status": "200 OK", "msg": "Sucesso!"}
 
-def criptografar_senha(password, hashed):
+def verifica_senha(password, hashed):
     if bcrypt.checkpw(password, hashed):
         return True
     else:
@@ -457,8 +457,19 @@ def login(user: PyLogin):
         # Se o usuário existir:
         if usuario:
             # Verifica se a senha está correta
-            if criptografar_senha(bytes(user.senha, encoding='utf-8'), bytes(usuario.senha, encoding='utf-8')):
-                return ok_msg
+            if verifica_senha(bytes(user.senha, encoding='utf-8'), bytes(usuario.senha, encoding='utf-8')):
+                
+                # Configurando uma session
+                session = requests.Session()
+
+                # Configurando um usuario e uma senha
+                session.auth = (usuario.login, usuario.senha)
+                
+                # Resposta da session
+                response = session.post('http://127.0.0.1:8000')
+
+                print(response.json)
+            
             else:
                 return "Login ou senha incorreto(s)!"
         
