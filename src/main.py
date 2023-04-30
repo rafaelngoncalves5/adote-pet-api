@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from datetime import date, datetime
 from fastapi import HTTPException
 import bcrypt
+import requests
+import schema
 
 from schema import Animal, Usuario
 
@@ -47,11 +49,18 @@ class PyUsuarioOptional(BaseModel):
     login: str | None
     senha: str | None
 
+class PyLogin(BaseModel):
+    login: str
+    senha: str
+
 app = FastAPI()
+
+not_found_msg = {"status": "404 Not Found", "msg": "Recurso não encontrado!"}
+ok_msg = {"status": "200 OK", "msg": "Sucesso!"}
 
 @app.get("/")
 def read_home():
-    welcome_msg = "Bem vindo ao adote seu pet! 🐶"
+    welcome_msg = "Bem vindo a API do adote seu pet! 🐶"
     intro_msg = "Os endpoints disponiíveis são:"
     home_url = "/"
 
@@ -68,6 +77,10 @@ def read_home():
     read_user_url = "/user/{id}"
     update_user_url = "/user/update?id="
     delete_user_url = "/user/delete?id="
+
+    # Login
+    login_user_url = "/user/login"
+    logout_user_url = "/user/logout?id="
 
     return {
 
@@ -86,8 +99,11 @@ def read_home():
         "Cadastro de usuários (GET/POST)": [create_user_url],
         "Leitura de usuário (GET)": [read_user_url],
         "Atualização de usuário (GET/UPDATE)": [update_user_url],
-        "Exclusão de usuário (DELETE)": [delete_user_url]
-        # ...
+        "Exclusão de usuário (DELETE)": [delete_user_url],
+
+        # Login e logout
+        "Login de usuários (GET/POST)": [login_user_url],
+        "Logout de usuários (GET/POST)": [logout_user_url],
         }
 
 # === CRUD de animais ===
@@ -164,8 +180,6 @@ def update_pet(id: int, animal: PyAnimalOptional):
     try:
         # Pega o pet:
         pet = Animal.get(id = id)
-        if not pet:
-            raise HTTPException(404)
 
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
         if animal.tipo == None or animal.tipo == "" or animal.tipo == " ":
@@ -210,9 +224,12 @@ def update_pet(id: int, animal: PyAnimalOptional):
         return {"{}, alterado com sucesso!".format(pet)} 
 
     except TypeError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")
+        return "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"
     except ValueError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!")
+        return "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"
+    except schema.DoesNotExist:
+        return not_found_msg
+        # raise schema.DoesNotExist(not_found_msg)
 
 # Delete
 @app.get('/pet/delete')
@@ -221,27 +238,23 @@ def delete_pet_get():
 
 @app.delete('/pet/delete')
 def delete_pet(id: int):
-    # Pega o objeto com id = id
-    pet = Animal.get(id = id)
+    try: 
+        # Pega o objeto com id = id
+        pet = Animal.get(id = id)
 
-    if pet:
         # Excluir
         pet.delete_instance()
         
         # Feedback
-        return {
-            "status": "200 OK", 
-            "msg": str(pet) + " excluído com sucesso! "
-            }
-    else:
-        raise HTTPException(404)
+        return ok_msg
+    except schema.DoesNotExist:
+        return not_found_msg
 
 # Detalhes
 @app.get('/pet/{id}/details')
-def detail_pet(id: int):
-    animal = Animal.get(id = id)
-    
-    if animal:
+def detail_pet(id: int):    
+    try:
+        animal = Animal.get(id = id)
         return {
             "Id": animal.id,
             "Tipo": animal.tipo,
@@ -253,8 +266,8 @@ def detail_pet(id: int):
             "Dono": animal.usuario_id,
             "Data de criação": animal.data_de_criacao   
         }
-    else:
-        raise HTTPException(404)
+    except schema.DoesNotExist:
+        return not_found_msg
 
 # === CRUD de usuários ===
 
@@ -302,9 +315,9 @@ def create_user(user: PyUsuario):
 # Read
 @app.get("/user/{id}/")
 def read_user(id: int):
-    user = Usuario.get(id = id)
 
-    if user:
+    try:
+        user = Usuario.get(id = id)
         return {
             "Id": user.id,
             "Nome completo": user.nome_completo,
@@ -317,8 +330,8 @@ def read_user(id: int):
             "Login": user.login,
             "Data de criação": user.data_de_criacao   
             }
-    else:
-        raise HTTPException(404)
+    except schema.DoesNotExist:
+        return not_found_msg
 
 # Update
 @app.get('/user/update')
@@ -341,8 +354,6 @@ def update_user(id: int, user: PyUsuarioOptional):
     try:
         # Pega o usuário:
         usuario = Usuario.get(id = id)
-        if not user:
-            raise HTTPException(404)
 
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
         if user.nome_completo == None or user.nome_completo == "" or user.nome_completo == " ":
@@ -396,26 +407,55 @@ def update_user(id: int, user: PyUsuarioOptional):
         usuario.save()
 
         # Retorna sucesso:
-        return {"{}, alterado com sucesso!".format(usuario)} 
+        return {"{}, alterado com sucesso!".format(usuario)}
 
     except TypeError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!")
+        return "Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!"
     except ValueError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!")
-
+        return "Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!"
+    except schema.DoesNotExist:
+        return not_found_msg
 # Delete
 @app.delete('/user/delete')
 def delete_user(id: int):
-    user = Usuario.get(id = id)
+    try:
+        user = Usuario.get(id = id)
 
-    if user:
-        # Excluir
-        user.delete_instance()
+        if user:
+            # Excluir
+            user.delete_instance()
         
-        # Feedback
-        return {
-            "status": "200 OK", 
-            "msg": str(user) + " excluído com sucesso! "
-            }
-    else:
-        raise HTTPException(404)
+            # Feedback
+            return ok_msg
+    except schema.DoesNotExist:
+            # Feedback
+            return not_found_msg
+
+# === Login e Logout ===
+
+# Login
+@app.get('/user/login')
+def login_get():
+    return {
+        "Bem vindo": "Bem vindo a URL para o login de usuários. Para logar um usuário, envie um JSON, com os seguintes dados: ",
+        "login": "Login do usuário (string)",
+        "senha": "Senha do usuário (string)",
+    }
+
+@app.post("/user/login")
+def login(user: PyLogin):
+    try:
+        # Pega o usuário
+        usuario = Usuario.get(login = user.login)
+        
+        # Se o usuário existir:
+        if usuario:
+            # Verifica se a senha está correta
+            if user.senha == usuario.senha:
+                pass
+        else:
+            return "Login ou senha incorreto(s)!"
+        
+    except schema.DoesNotExist:
+        return "Login ou senha incorreto(s)!"
+
