@@ -532,17 +532,24 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     except DoesNotExist:
-        return "Login ou senha incorreto(s)!"
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Login ou senha incorreto(s)!",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
         
     usuario = Usuario.get(login = token_data['sub'])
 
     if usuario is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not find user",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Login ou senha incorreto(s)!",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     return usuario
+
+# Logout melhor ser feito no JS -> document.execCommand("ClearAuthenticationCache")
 
 @app.get('/user/me')
 async def get_me(user: Usuario = Depends(get_current_user)):
