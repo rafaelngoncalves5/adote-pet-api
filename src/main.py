@@ -1,13 +1,17 @@
-from typing import Union
-from fastapi import FastAPI
-from pydantic import BaseModel
-from datetime import date, datetime
+from typing import Union, Any
+from fastapi import FastAPI, Depends, HTTPException, status
+from pydantic import BaseModel, ValidationError
+from datetime import date, datetime, timedelta
 from fastapi import HTTPException
 import bcrypt
 import requests
 import schema
 
-from schema import Animal, Usuario
+# OAuth2 e JWT
+import os
+from jose import JWTError, jwt
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from schema import Animal, Usuario, DoesNotExist
 
 class PyAnimal(BaseModel):
     tipo: str
@@ -448,22 +452,90 @@ def login_get():
         "senha": "Senha do usuário (string)",
     }
 
-@app.post("/user/login")
-def login(user: PyLogin):
+ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
+REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
+ALGORITHM = "HS256"
+# Armazenar no os env dps
+JWT_SECRET_KEY =  'efdsdssd'  # should be kept secret
+JWT_REFRESH_SECRET_KEY = '3fdfs'    # should be kept secret
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="user/login",
+    scheme_name="JWT"
+)
+
+# Parte 1 - Gerando tokens
+def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+    if expires_delta is not None:
+        expires_delta = datetime.utcnow() + expires_delta
+    else:
+        expires_delta = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode = {"exp": expires_delta, "sub": str(subject)}
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
+    return encoded_jwt
+
+def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+    if expires_delta is not None:
+        expires_delta = datetime.utcnow() + expires_delta
+    else:
+        expires_delta = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode = {"exp": expires_delta, "sub": str(subject)}
+    encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
+    return encoded_jwt
+
+# Parte 2 - Login
+@app.post('/user/login', summary="Recebe um username e password e retorna um token de acesso e um de refresh")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
-        # Pega o usuário
-        usuario = Usuario.get(login = user.login)
-        
-        # Se o usuário existir:
-        if usuario:
-            # Verifica se a senha está correta
-            if verifica_senha(bytes(user.senha, encoding='utf-8'), bytes(usuario.senha, encoding='utf-8')):
-                
-                # OAuth2
-                raise NotImplemented("Lendo docs")
-            
-            else:
-                return "Login ou senha incorreto(s)!"
-        
-    except schema.DoesNotExist:
+        usuario = Usuario.get(login = form_data.username)
+
+        if verifica_senha(bytes(form_data.password, 'utf-8'), bytes(usuario.senha, 'utf-8')):
+            # Retorna o token
+            return {
+                "access_token": create_access_token(usuario.login),
+                "refresh_token": create_refresh_token(usuario.login),
+                }
+        else:
+            return "Login ou senha incorreto(s)!"
+
+    except DoesNotExist:
         return "Login ou senha incorreto(s)!"
+
+# Parte 3 - Rotas protegidas
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(
+            token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        token_data = payload
+        
+        if datetime.fromtimestamp(token_data['exp']) < datetime.now():
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail="Token expirou",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except(jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Credenciais não puderam ser validadas {}".format(token_data),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except DoesNotExist:
+        return "Login ou senha incorreto(s)!"
+        
+    usuario = Usuario.get(login = token_data['sub'])
+
+    if usuario is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not find user",
+        )
+
+    return usuario
+
+@app.get('/user/me')
+async def get_me(user: Usuario = Depends(get_current_user)):
+    return user
