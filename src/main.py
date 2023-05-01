@@ -4,14 +4,13 @@ from pydantic import BaseModel, ValidationError
 from datetime import date, datetime, timedelta
 from fastapi import HTTPException
 import bcrypt
-import requests
 import schema
 
 # OAuth2 e JWT
-import os
-from jose import JWTError, jwt
+from jose import jwt
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from schema import Animal, Usuario, DoesNotExist
+import random
 
 class PyAnimal(BaseModel):
     tipo: str
@@ -135,7 +134,6 @@ def create_pet_get():
 @app.post('/pet/create')
 def create_pet(animal: PyAnimal):
     try:
-
         new_animal = Animal.create(
             tipo=animal.tipo,
             raca=animal.raca,
@@ -148,10 +146,15 @@ def create_pet(animal: PyAnimal):
         return {"Animal {} criado com sucesso!".format(new_animal)}
     
     except TypeError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/read (GET)!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Por favor, verifique os dados enviados. Leia nosso /pet/create (GET)!",
+            )
     except ValueError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /pet/read (GET)!")
-
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Por favor, verifique os dados enviados. Leia nosso /pet/create (GET)!",
+            )  
 # Read
 @app.get('/pet/read')
 def read_pet():
@@ -238,7 +241,10 @@ def update_pet(id: int, animal: PyAnimalOptional):
     except ValueError:
         return "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"
     except schema.DoesNotExist:
-        return not_found_msg
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=not_found_msg,
+            )  
         # raise schema.DoesNotExist(not_found_msg)
 
 # Delete
@@ -258,7 +264,10 @@ def delete_pet(id: int):
         # Feedback
         return ok_msg
     except schema.DoesNotExist:
-        return not_found_msg
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=not_found_msg,
+            )
 
 # Detalhes
 @app.get('/pet/{id}/details')
@@ -277,7 +286,10 @@ def detail_pet(id: int):
             "Data de criação": animal.data_de_criacao   
         }
     except schema.DoesNotExist:
-        return not_found_msg
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=not_found_msg,
+            )  
 
 # === CRUD de usuários ===
 
@@ -318,10 +330,15 @@ def create_user(user: PyUsuario):
         return {"Usuário {} criado com sucesso!".format(new_user)}
     
     except TypeError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!",
+            )    
     except ValueError:
-        raise TypeError("Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!",
+            )  
 # Read
 @app.get("/user/{id}/")
 def read_user(id: int):
@@ -341,7 +358,10 @@ def read_user(id: int):
             "Data de criação": user.data_de_criacao   
             }
     except schema.DoesNotExist:
-        return not_found_msg
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=not_found_msg,
+            )    
 
 # Update
 @app.get('/user/update')
@@ -420,11 +440,20 @@ def update_user(id: int, user: PyUsuarioOptional):
         return {"{}, alterado com sucesso!".format(usuario)}
 
     except TypeError:
-        return "Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!"
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!",
+            )    
     except ValueError:
-        return "Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!",
+            )
     except schema.DoesNotExist:
-        return not_found_msg
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=not_found_msg,
+            )
 # Delete
 @app.delete('/user/delete')
 def delete_user(id: int):
@@ -438,9 +467,11 @@ def delete_user(id: int):
             # Feedback
             return ok_msg
     except schema.DoesNotExist:
-            # Feedback
-            return not_found_msg
-
+        # Feedback
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=not_found_msg,
+            )
 # === Login e Logout ===
 
 # Login
@@ -456,8 +487,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 ALGORITHM = "HS256"
 # Armazenar no os env dps
-JWT_SECRET_KEY =  'efdsdssd'  # should be kept secret
-JWT_REFRESH_SECRET_KEY = '3fdfs'    # should be kept secret
+# random.getrandbits(128)
+JWT_SECRET_KEY =  '253131976698588696785695837182010793091'  # should be kept secret
+JWT_REFRESH_SECRET_KEY = '167965321473800995642209845734228202363'    # should be kept secret
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="user/login",
@@ -551,6 +583,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 # Logout melhor ser feito no JS -> document.execCommand("ClearAuthenticationCache")
 
+# Aqui só para pegar o usuário da sessão
 @app.get('/user/me')
 async def get_me(user: Usuario = Depends(get_current_user)):
     return user
