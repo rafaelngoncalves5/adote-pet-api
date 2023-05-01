@@ -3,3 +3,4 @@ uvicorn
 peewee
 psycopg2
 bcrypt
+python-multipart
