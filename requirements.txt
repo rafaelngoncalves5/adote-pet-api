@@ -4,3 +4,4 @@ peewee
 psycopg2
 bcrypt
 python-multipart
+python-jose[cryptography]
