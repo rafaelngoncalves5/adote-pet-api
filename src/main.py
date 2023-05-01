@@ -498,10 +498,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
                 "refresh_token": create_refresh_token(usuario.login),
                 }
         else:
-            return "Login ou senha incorreto(s)!"
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Login ou senha incorreto(s)!",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
     except DoesNotExist:
-        return "Login ou senha incorreto(s)!"
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Login ou senha incorreto(s)!",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 # Parte 3 - Rotas protegidas
 async def get_current_user(token: str = Depends(oauth2_scheme)):
