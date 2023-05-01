@@ -459,16 +459,8 @@ def login(user: PyLogin):
             # Verifica se a senha está correta
             if verifica_senha(bytes(user.senha, encoding='utf-8'), bytes(usuario.senha, encoding='utf-8')):
                 
-                # Configurando uma session
-                session = requests.Session()
-
-                # Configurando um usuario e uma senha
-                session.auth = (usuario.login, usuario.senha)
-                
-                # Resposta da session
-                response = session.post('http://127.0.0.1:8000')
-
-                print(response.json)
+                # OAuth2
+                raise NotImplemented("Lendo docs")
             
             else:
                 return "Login ou senha incorreto(s)!"
