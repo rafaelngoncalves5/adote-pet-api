@@ -430,6 +430,19 @@ def create_user_get():
 @app.post('/user/create', summary="Cadastre um usuário")
 def create_user(user: PyUsuario):
 
+    # Verificar se 'login' e 'email' já foram cadastrados no BD
+    if Usuario.select().where(Usuario.login == user.login).exists():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Login já cadastrado!",
+            )        
+        
+    if Usuario.select().where(Usuario.email == user.email).exists():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email já cadastrado!",
+            )   
+
     # Criptografa a senha antes de instanciar
     hashed = bcrypt.hashpw(bytes(user.senha, 'utf-8'), bcrypt.gensalt())
 
@@ -445,7 +458,7 @@ def create_user(user: PyUsuario):
             login=user.login,
             senha=hashed
         )
-        return {"Usuário {} criado com sucesso!".format(new_user)}
+        return {"{} criado com sucesso!".format(new_user)}
     
     except TypeError:
         raise HTTPException(
@@ -517,6 +530,19 @@ def update_user(id: int, user: PyUsuarioOptional, c_user: Usuario = Depends(get_
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=forbidden_msg,
                 )
+        
+        # Verificar se 'login' e 'email' já foram cadastrados no BD
+        if Usuario.select().where(Usuario.login == user.login).exists():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Login já cadastrado!",
+                )        
+        
+        if Usuario.select().where(Usuario.email == user.email).exists():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email já cadastrado!",
+                )
 
         # Passa os dados anteriores ao pet, em caso de não alterarmos:
         if user.nome_completo == None or user.nome_completo == "" or user.nome_completo == " ":
@@ -578,14 +604,14 @@ def update_user(id: int, user: PyUsuarioOptional, c_user: Usuario = Depends(get_
             detail="Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!",
             )    
     except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!",
-            )
-    except schema.DoesNotExist:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=not_found_msg,
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Por favor, verifique os dados enviados. Leia nosso /user/update (GET)!",
+        )
+    except DoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=not_found_msg,
             )
 # Delete
 @app.delete('/user/delete', summary="Rota protegida. Exclua um usuário")

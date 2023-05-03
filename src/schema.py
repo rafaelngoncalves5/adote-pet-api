@@ -48,3 +48,17 @@ psql_db.create_tables([Usuario, Animal])
 # Testando
 # shaolin_pig_killer = Usuario.create(email="shaolinmatadordeporco@mail.com", nome_completo='Shaolin Matador de Porco da Silva', telefone="4002-8922", data_de_nascimento=date(1973, 6, 6), login='shaolin666', senha='pigman1672')
 # baby_eater = Animal.create(tipo='Sinistro', nome_completo="Baby Eater", raca='Doberman Pinscher', genero="Demônio", usuario_id=1)
+
+# print(Usuario.select().where(Usuario.id == 5).exists())
+# print(Usuario.select().where(Usuario.email == "rafaelngoncalves5@outlook.com").exists())
+
+def check_bi():
+    if Usuario.select().where(Usuario.id == 5).exists() and Usuario.select().where(Usuario.email == "rafaelngoncalves5@outlook.com").exists():
+        return True
+    else:
+        return False
+    
+if not check_bi():
+    print("Errado")
+else:
+    print("Certo")
