@@ -465,10 +465,11 @@ def read_user(id: int, c_user: Usuario = Depends(get_current_user)):
 
         # Antes de qualquer coisa, precisamos verificar se o usuário com acesso foi quem cadastrou o pet
         if c_user.id != user.id:
+            # Por segurança, aqui nós elevamos o '404' ao invés do 403
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=forbidden_msg,
-                )
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=not_found_msg,
+                )    
         
         return {
             "Id": user.id,
