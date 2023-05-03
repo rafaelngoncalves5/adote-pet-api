@@ -10,7 +10,6 @@ import schema
 from jose import jwt
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from schema import Animal, Usuario, DoesNotExist
-import random
 
 class PyAnimal(BaseModel):
     tipo: str
@@ -275,7 +274,7 @@ def read_pet():
                 "Raça": animal.raca,
                 "Gênero": animal.genero,
                 "Data de nascimento": animal.data_de_nascimento,
-                "Dono: ": animal.user.id,
+                "Dono: ": animal.usuario_id,
                 "Data de criação": animal.data_de_criacao,
             },
         })

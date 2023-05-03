@@ -52,7 +52,7 @@ psql_db.create_tables([Usuario, Animal])
 # print(Usuario.select().where(Usuario.id == 5).exists())
 # print(Usuario.select().where(Usuario.email == "rafaelngoncalves5@outlook.com").exists())
 
-def check_bi():
+'''def check_bi():
     if Usuario.select().where(Usuario.id == 5).exists() and Usuario.select().where(Usuario.email == "rafaelngoncalves5@outlook.com").exists():
         return True
     else:
@@ -61,4 +61,4 @@ def check_bi():
 if not check_bi():
     print("Errado")
 else:
-    print("Certo")
+    print("Certo")'''
