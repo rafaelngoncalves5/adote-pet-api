@@ -19,7 +19,7 @@ class PyAnimal(BaseModel):
     nome_completo: str
     data_de_nascimento: date | None
     flag_castrado: bool
-    #usuario_id: int
+    usuario_id: int
 
 class PyAnimalOptional(BaseModel):
     tipo: str | None
@@ -28,7 +28,7 @@ class PyAnimalOptional(BaseModel):
     nome_completo: str | None
     data_de_nascimento: date | None
     flag_castrado: bool | None
-    #usuario_id: int | None
+    usuario_id: int | None
 
 class PyUsuario(BaseModel):
     nome_completo: str
@@ -53,7 +53,7 @@ class PyUsuarioOptional(BaseModel):
     senha: str | None
 
 class PyLogin(BaseModel):
-    login: str
+    username: str
     senha: str
 
 app = FastAPI()
@@ -116,15 +116,6 @@ def read_home():
         "Logout de usuários (GET/POST)": [logout_user_url],
         }
 # === Login ===
-
-# Login
-@app.get('/user/login')
-def login_get():
-    return {
-        "Bem vindo": "Bem vindo a URL para o login de usuários. Para logar um usuário, envie um JSON, com os seguintes dados: ",
-        "login": "Login do usuário (string)",
-        "senha": "Senha do usuário (string)",
-    }
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
@@ -225,9 +216,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return usuario
 
 # Logout melhor ser feito no JS -> document.execCommand("ClearAuthenticationCache")
-
+'''
 # Aqui só para pegar o usuário da sessão
-'''@app.get('/user/me')
+app.get('/user/me')
 async def get_me(user: Usuario = Depends(get_current_user)):
     return user'''
 
@@ -259,7 +250,7 @@ def create_pet(animal: PyAnimal, user: Usuario = Depends(get_current_user)):
             flag_castrado=animal.flag_castrado,
             usuario_id=animal.usuario_id,
         )
-        return {"Animal {} criado com sucesso!".format(new_animal)}
+        return {"{} criado com sucesso!".format(new_animal)}
     
     except TypeError:
         raise HTTPException(
@@ -301,7 +292,6 @@ def update_pet_get():
             "nome_completo": "Nome completo do animal (string)",
             "data_de_nascimento": "Data de nascimento do animal (string/date). Envie uma string no seguinte formato: YY-MM-DD. Por exemplo: 2020-04-20",
             "flag_castrado": "O animal foi castrado (boolean)?",
-            "usuario_id": "A qual usuário este animal pertence (int)"
         }
 
 @app.put('/pet/update', summary="Edite um pet. Rota protegida")
@@ -310,13 +300,13 @@ def update_pet(id: int, animal: PyAnimalOptional, user: Usuario = Depends(get_cu
         # Pega o pet:
         pet = Animal.get(id = id)
 
+        # Obs: user.login ao invés de user.username, pq retornamos um user do tipo 'Usuario' 'no get_current_user'
+
         # Antes de qualquer coisa, precisamos verificar se o usuário com acesso foi quem cadastrou o pet
-        c_user = Usuario.get(login = user.username)
-        if pet.usuario_id == c_user.id:
-            pass
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+        if pet.usuario_id.id != user.id:
+
+            raise HTTPException(   
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail=forbidden_msg,
                 )
 
@@ -351,26 +341,21 @@ def update_pet(id: int, animal: PyAnimalOptional, user: Usuario = Depends(get_cu
         else:
             pet.flag_castrado = animal.flag_castrado
 
-        if animal.usuario_id == None or animal.usuario_id == "" or animal.usuario_id == " ":            
-            pass
-        else:
-            pet.usuario_id = animal.usuario_id
-
         # Salva o pet alterado
         pet.save()
 
         # Retorna sucesso:
         return {"{}, alterado com sucesso!".format(pet)} 
 
-    except TypeError:
+    except TypeError as te:
         return "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"
-    except ValueError:
+    except ValueError as te:
         return "Por favor, verifique os dados enviados. Leia nosso /pet/update (GET)!"
     except schema.DoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=not_found_msg,
-            )  
+            )
         # raise schema.DoesNotExist(not_found_msg)
 
 # Delete
@@ -385,10 +370,7 @@ def delete_pet(id: int, user: Usuario = Depends(get_current_user)):
         pet = Animal.get(id = id)
 
         # Antes de qualquer coisa, precisamos verificar se o usuário com acesso foi quem cadastrou o pet
-        c_user = Usuario.get(login = user.username)
-        if pet.usuario_id == c_user.id:
-            pass
-        else:
+        if pet.usuario_id.id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=forbidden_msg,
@@ -482,10 +464,7 @@ def read_user(id: int, c_user: Usuario = Depends(get_current_user)):
         user = Usuario.get(id = id)
 
         # Antes de qualquer coisa, precisamos verificar se o usuário com acesso foi quem cadastrou o pet
-        usuario = Usuario.get(login = c_user.username)
-        if usuario.id == user.id:
-            pass
-        else:
+        if c_user.id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=forbidden_msg,
@@ -529,13 +508,10 @@ def update_user_get():
 def update_user(id: int, user: PyUsuarioOptional, c_user: Usuario = Depends(get_current_user)):
     try:
         # Pega o usuário:
-        user = Usuario.get(id = id)
+        usuario = Usuario.get(id = id)
 
         # Antes de qualquer coisa, precisamos verificar se o usuário com acesso foi quem cadastrou o pet
-        usuario = Usuario.get(login = c_user.username)
-        if usuario.id == user.id:
-            pass
-        else:
+        if c_user.id != usuario.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=forbidden_msg,
@@ -618,10 +594,7 @@ def delete_user(id: int, c_user: Usuario = Depends(get_current_user)):
         user = Usuario.get(id = id)
 
         # Antes de qualquer coisa, precisamos verificar se o usuário com acesso foi quem cadastrou o pet
-        usuario = Usuario.get(login = c_user.username)
-        if usuario.id == user.id:
-            pass
-        else:
+        if c_user.id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=forbidden_msg,
