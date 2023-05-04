@@ -43,8 +43,9 @@ class Animal(BaseModel):
     def __str__(self):
         return str(f"Animal {self.nome_completo}, da raça {self.raca}, com id {self.id}, do {self.usuario_id}")
 
+AnimaisUsuarios = Usuario.animal.get_through_model()
 
-psql_db.create_tables([Usuario, Animal])
+psql_db.create_tables([Usuario, Animal, AnimaisUsuarios])
 
 # Testando
 # shaolin_pig_killer = Usuario.create(email="shaolinmatadordeporco@mail.com", nome_completo='Shaolin Matador de Porco da Silva', telefone="4002-8922", data_de_nascimento=date(1973, 6, 6), login='shaolin666', senha='pigman1672')

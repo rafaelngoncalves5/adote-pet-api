@@ -74,12 +74,13 @@ def read_home():
     home_url = "/"
 
     # CRUD de animal
-    create_pet_url = "/pet/create",
-    read_pet_url = "/pet/read",
-    update_pet_url = "/pet/update?id=",
-    delete_pet_url = "/pet/delete/pet?id=",
+    create_pet_url = "/pet/create"
+    read_pet_url = "/pet/read"
+    update_pet_url = "/pet/update?id="
+    delete_pet_url = "/pet/delete/pet?id="
 
-    detail_pet_url = "/pet/{id}/details",
+    detail_pet_url = "/pet/{id}/details"
+    favorite_url = "/pet/favorite?id="
 
     # CRUD de usuário
     create_user_url = "/user/create"
@@ -103,6 +104,7 @@ def read_home():
         "Exclusão de pets (GET/DELETE): ": [delete_pet_url],
 
         "Detalhes (GET)": [detail_pet_url],
+        "Favoritar (GET/POST)": [favorite_url],
 
         # CRUD de usuário
         "Cadastro de usuários (GET/POST)": [create_user_url],
@@ -406,7 +408,43 @@ def detail_pet(id: int):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=not_found_msg,
-            )  
+            )
+
+
+@app.get('/pet/favorite')
+def favorite_get():
+    return "Bem vindo a URL para favoritar pets. Para favoritar um pet, envie uma query com o 'id' do animal que deseja favoritar, usando o método 'POST'! ",
+
+@app.post('/pet/favorite', summary="Rota protegida. Favorite um pet")
+def favorite(id: int, user: Usuario = Depends(get_current_user)):
+    # Pega o pet
+    try:
+        pet = Animal.get(id = id)
+
+        return ok_msg
+
+    except DoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Animal não encontrado!",
+            )           
+
+@app.get('/user/pet/favorites')
+def read_favorites(user: Usuario = Depends(get_current_user)):
+    my_list = list()
+    for animal in Animal.select():
+        my_list.append({
+            animal.id: {
+                "Id": animal.id,
+                "Nome completo": animal.nome_completo,
+                "Tipo": animal.tipo,
+                "Raça": animal.raca,
+                "Gênero": animal.genero,
+                "Data de nascimento": animal.data_de_nascimento,
+                "Dono: ": animal.usuario_id,
+                "Data de criação": animal.data_de_criacao,
+            },
+        })
 
 # === CRUD de usuários ===
 
