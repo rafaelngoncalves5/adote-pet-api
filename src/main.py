@@ -470,7 +470,7 @@ def create_user(user: PyUsuario):
             detail="Por favor, verifique os dados enviados. Leia nosso /user/create (GET)!",
             )  
 # Read
-@app.get("/user/{id}/", summary="Rota protegida. Acesse um usuário")
+@app.get("/user/{id}/", summary="Acesse um usuário. Rota protegida")
 def read_user(id: int, c_user: Usuario = Depends(get_current_user)):
     try:
         user = Usuario.get(id = id)
@@ -517,7 +517,7 @@ def update_user_get():
             "senha": "Senha do usuário (string)",
             }
 
-@app.put('/user/update', summary="Rota protegida. Edite um usuário")
+@app.put('/user/update', summary="Edite um usuário. Rota protegida")
 def update_user(id: int, user: PyUsuarioOptional, c_user: Usuario = Depends(get_current_user)):
     try:
         # Pega o usuário:
@@ -613,7 +613,7 @@ def update_user(id: int, user: PyUsuarioOptional, c_user: Usuario = Depends(get_
             detail=not_found_msg,
             )
 # Delete
-@app.delete('/user/delete', summary="Rota protegida. Exclua um usuário")
+@app.delete('/user/delete', summary="Exclua um usuário. Rota protegida")
 def delete_user(id: int, c_user: Usuario = Depends(get_current_user)):
     try:
 
