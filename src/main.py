@@ -421,30 +421,33 @@ def favorite(id: int, user: Usuario = Depends(get_current_user)):
     try:
         pet = Animal.get(id = id)
 
+        # Adiciona o usuaário aos favoritos e retorna OK
+        user.animal.add(pet)
+
         return ok_msg
 
     except DoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Animal não encontrado!",
-            )           
+            )
+    except schema.IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Animal já favoritado!"
+        )        
 
-@app.get('/user/pet/favorites')
+@app.get('/user/pet/favorites', summary="Rota protegida. Veja seus pets favoritos")
 def read_favorites(user: Usuario = Depends(get_current_user)):
     my_list = list()
-    for animal in Animal.select():
+    for animal in user.animal:
         my_list.append({
             animal.id: {
                 "Id": animal.id,
                 "Nome completo": animal.nome_completo,
-                "Tipo": animal.tipo,
-                "Raça": animal.raca,
-                "Gênero": animal.genero,
-                "Data de nascimento": animal.data_de_nascimento,
-                "Dono: ": animal.usuario_id,
-                "Data de criação": animal.data_de_criacao,
             },
         })
+    return my_list
 
 # === CRUD de usuários ===
 
