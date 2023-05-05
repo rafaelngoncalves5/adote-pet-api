@@ -26,6 +26,12 @@ API REST para utilização com app React Native usando [PostgreSQL](https://www.
 
 - **Login de usuários (GET/POST)**: /user/login
 
+<hr />
+
+![endpoints](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/endpoints.PNG)
+
+<hr />
+
 ## Autenticação
 
 A autenticação foi feita utilizando [OAuth2](https://oauth.net/2/) e [JWT](https://jwt.io/)
