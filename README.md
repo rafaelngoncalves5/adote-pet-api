@@ -49,7 +49,7 @@ A autenticação foi feita utilizando [OAuth2](https://oauth.net/2/) e [JWT](htt
   
   ![tokens](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e3.PNG)
   
-  4 - Usuário autentica com o **authorize** na API com as credenciais utilizadas na geração do token. Ou, usuário passa um ***Authorization header***, com o ***Bearer*** seguido pelo token gerado as rotas protegidas
+  4 - Usuário autentica com o **authorize** na API com as credenciais utilizadas na geração do token. Ou, usuário passa um ***Authorization header***, com o ***Bearer***, seguido pelo token gerado, para as rotas protegidas
   
   ![autoriza](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e4.PNG)
   
