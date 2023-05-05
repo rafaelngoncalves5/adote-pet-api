@@ -7,6 +7,8 @@
 
 API REST para utilização com app React Native usando [PostgreSQL](https://www.postgresql.org/), [FastAPI](https://fastapi.tiangolo.com/) e [Peewee ORM](https://docs.peewee-orm.com/en/latest/index.html)
 
+Para a utilização da API, instale as dependências contidas em ***requirements.txt***, entre na pasta que o arquivo **main.py** se encontra presente, e execute com o ***uvicorn main:app --reload***
+
 ## Endpoints
 
 - **Home (GET)**: /
