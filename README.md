@@ -9,22 +9,22 @@ API REST para utilização com app React Native usando [PostgreSQL](https://www.
 
 ## Endpoints
 
-**Home (GET)**: "/"
+- **Home (GET)**: "/"
 
-**Listagem de pets (GET)**: "/pet/create"
-**Criação de pets (GET/POST)**: "/pet/read"
-**Alteração de pets (GET/PUT)**: "/pet/update?id=",
-**Exclusão de pets (GET/DELETE):**: "/pet/delete/pet?id=",
+- **Listagem de pets (GET)**: /pet/create
+- **Criação de pets (GET/POST)**: /pet/read
+- **Alteração de pets (GET/PUT)**: /pet/update?id=
+- **Exclusão de pets (GET/DELETE):**: /pet/delete/pet?id=
 
-**Detalhes (GET)**: "/pet/{id}/details",
-**Favoritar (GET/POST)**: "/pet/favorite?id=",
+- **Detalhes (GET)**: /pet/{id}/details
+- **Favoritar (GET/POST)**: /pet/favorite?id=
 
-**Cadastro de usuários (GET/POST)**: "/user/create",
-**Leitura de usuário (GET)**: "/user/{id}",
-**Atualização de usuário (GET/UPDATE)**: "/user/update?id=",
-**Exclusão de usuário (DELETE)**: "/user/delete?id=",
+- **Cadastro de usuários (GET/POST)**: /user/create
+- **Leitura de usuário (GET)**: /user/{id}
+- **Atualização de usuário (GET/UPDATE)**: /user/update?id=
+- **Exclusão de usuário (DELETE)**: /user/delete?id=
 
-**Login de usuários (GET/POST)**: "/user/login",
+- **Login de usuários (GET/POST)**: /user/login
 
 ## Autenticação
 
