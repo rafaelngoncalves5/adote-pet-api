@@ -19,7 +19,7 @@ class PyAnimal(BaseModel):
     nome_completo: str
     data_de_nascimento: date | None
     flag_castrado: bool
-    usuario_id: int
+    usuario_id: int | None
 
 class PyAnimalOptional(BaseModel):
     tipo: str | None
@@ -28,7 +28,6 @@ class PyAnimalOptional(BaseModel):
     nome_completo: str | None
     data_de_nascimento: date | None
     flag_castrado: bool | None
-    usuario_id: int | None
 
 class PyUsuario(BaseModel):
     nome_completo: str
@@ -72,25 +71,26 @@ def verifica_senha(password, hashed):
 def read_home():
     welcome_msg = "Bem vindo a API do adote seu pet! 🐶"
     intro_msg = "Os endpoints disponiíveis são:"
-    home_url = "/"
+
+    home_url = "/"  # OK
 
     # CRUD de animal
-    create_pet_url = "/pet/create"
-    read_pet_url = "/pet/read"
-    update_pet_url = "/pet/update?id="
-    delete_pet_url = "/pet/delete/pet?id="
+    create_pet_url = "/pet/create"  # OK
+    read_pet_url = "/pet/read"  # OK
+    update_pet_url = "/pet/update?id="  # OK
+    delete_pet_url = "/pet/delete/pet?id="  # OK
 
-    detail_pet_url = "/pet/{id}/details"
-    favorite_url = "/pet/favorite?id="
+    detail_pet_url = "/pet/{id}/details"    # OK
+    favorite_url = "/pet/favorite?id="  # OK
 
     # CRUD de usuário
-    create_user_url = "/user/create"
-    read_user_url = "/user/{id}"
-    update_user_url = "/user/update?id="
-    delete_user_url = "/user/delete?id="
+    create_user_url = "/user/create"    # OK
+    read_user_url = "/user/{id}"    # OK
+    update_user_url = "/user/update?id="    # OK
+    delete_user_url = "/user/delete?id="    # OK
 
     # Login
-    login_user_url = "/user/login"
+    login_user_url = "/user/login"  # OK
 
     return {
 
@@ -234,8 +234,7 @@ def create_pet_get():
         "genero": "Masculino, Feminino ou Outro (enum/string/tuple)",
         "nome_completo": "Nome completo do animal (string)",
         "data_de_nascimento": "Data de nascimento do animal (string/date). Envie uma string no seguinte formato: YY-MM-DD. Por exemplo: 2020-04-20",
-        "flag_castrado": "O animal foi castrado (boolean)?",
-        "usuario_id": "A qual usuário este animal pertence (int)"
+        "flag_castrado": "O animal foi castrado (boolean)?"
         }
 
 @app.post('/pet/create', summary="Crie um pet. Rota protegida")
@@ -248,7 +247,7 @@ def create_pet(animal: PyAnimal, user: Usuario = Depends(get_current_user)):
             nome_completo=animal.genero,
             data_de_nascimento=animal.data_de_nascimento,
             flag_castrado=animal.flag_castrado,
-            usuario_id=animal.usuario_id,
+            usuario_id=user.id,
         )
         return {"{} criado com sucesso!".format(new_animal)}
     
@@ -263,7 +262,7 @@ def create_pet(animal: PyAnimal, user: Usuario = Depends(get_current_user)):
             detail="Por favor, verifique os dados enviados. Leia nosso /pet/create (GET)!",
             )  
 # Read
-@app.get('/pet/read', summary="Encontre um pet")
+@app.get('/pet/read', summary="Encontre pets")
 def read_pet():
     my_list = list()
     for animal in Animal.select():
@@ -667,6 +666,9 @@ def delete_user(id: int, c_user: Usuario = Depends(get_current_user)):
                 )
 
         if user:
+            # Remove os associated objects many-to-many pra evitar erro de constraint
+            user.animal.clear()
+
             # Excluir
             user.delete_instance()
         

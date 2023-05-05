@@ -36,9 +36,9 @@ class Animal(BaseModel):
     nome_completo = CharField(max_length=150)
     data_de_nascimento = TimestampField(null=True)
     flag_castrado = BooleanField(default=False)
-    usuario_id = ForeignKeyField(Usuario, backref='usuario')
+    usuario_id = ForeignKeyField(Usuario, backref='usuario', on_delete='cascade')
     data_de_criacao = TimestampField(default=datetime.now())
-    favoritos_id = ManyToManyField(Usuario, backref="animal")
+    favoritos_id = ManyToManyField(Usuario, backref="animal", on_delete='cascade')
 
     def __str__(self):
         return str(f"Animal {self.nome_completo}, da raça {self.raca}, com id {self.id}, do {self.usuario_id}")

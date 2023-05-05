@@ -11,8 +11,8 @@ API REST para utilização com app React Native usando [PostgreSQL](https://www.
 
 - **Home (GET)**: /
 
-- **Listagem de pets (GET)**: /pet/create
-- **Criação de pets (GET/POST)**: /pet/read
+- **Listagem de pets (GET)**: /pet/read
+- **Criação de pets (GET/POST)**: /pet/create
 - **Alteração de pets (GET/PUT)**: /pet/update?id=
 - **Exclusão de pets (GET/DELETE):**: /pet/delete/pet?id=
 
