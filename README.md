@@ -7,6 +7,10 @@
 
 API REST para utilização com app React Native usando [PostgreSQL](https://www.postgresql.org/), [FastAPI](https://fastapi.tiangolo.com/) e [Peewee ORM](https://docs.peewee-orm.com/en/latest/index.html)
 
+## Endpoints
+
+
+
 ## Autenticação
 
 A autenticação foi feita utilizando [OAuth2](https://oauth.net/2/) e [JWT](https://jwt.io/)

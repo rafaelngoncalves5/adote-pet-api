@@ -10,6 +10,7 @@ import schema
 from jose import jwt
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from schema import Animal, Usuario, DoesNotExist
+import env
 
 class PyAnimal(BaseModel):
     tipo: str
@@ -89,7 +90,6 @@ def read_home():
 
     # Login
     login_user_url = "/user/login"
-    logout_user_url = "/user/logout?id="
 
     return {
 
@@ -110,9 +110,8 @@ def read_home():
         "Atualização de usuário (GET/UPDATE)": [update_user_url],
         "Exclusão de usuário (DELETE)": [delete_user_url],
 
-        # Login e logout
+        # Login
         "Login de usuários (GET/POST)": [login_user_url],
-        "Logout de usuários (GET/POST)": [logout_user_url],
         }
 # === Login ===
 
@@ -121,8 +120,8 @@ REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 ALGORITHM = "HS256"
 # Armazenar no os env dps
 # random.getrandbits(128)
-JWT_SECRET_KEY =  '253131976698588696785695837182010793091'  # should be kept secret
-JWT_REFRESH_SECRET_KEY = '167965321473800995642209845734228202363'    # should be kept secret
+JWT_SECRET_KEY =  env.jwt_skey  # should be kept secret
+JWT_REFRESH_SECRET_KEY = env.jwt_rskey    # should be kept secret
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="user/login",
