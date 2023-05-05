@@ -39,24 +39,24 @@ A autenticação foi feita utilizando [OAuth2](https://oauth.net/2/) e [JWT](htt
   
   2 - Usuário faz login com username e password
   
-  ![loginendpoint](https://github.com/rafaelngoncalves5/adote-pet-api/blob/login/logout/docs/auth-steps/e1.PNG)
+  ![loginendpoint](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e1.PNG)
   
   2.1 - Em caso de erro, é emitido um erro com status **403** do HTTP
   
-  ![error403](https://github.com/rafaelngoncalves5/adote-pet-api/blob/login/logout/docs/auth-steps/e2.PNG)
+  ![error403](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e2.PNG)
   
   3 - Caso os dados estejam corretos, é gerado um ***JWT*** access token e um refresh token
   
-  ![tokens](https://github.com/rafaelngoncalves5/adote-pet-api/blob/login/logout/docs/auth-steps/e3.PNG)
+  ![tokens](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e3.PNG)
   
   4 - Usuário autentica com o **authorize** na API com as credenciais utilizadas na geração do token. Ou, usuário passa um ***Authorization header***, com o ***Bearer*** seguido pelo token gerado as rotas protegidas
   
-  ![autoriza](https://github.com/rafaelngoncalves5/adote-pet-api/blob/login/logout/docs/auth-steps/e4.PNG)
+  ![autoriza](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e4.PNG)
   
   > O passo 4 pode e deve ser facilitado pelo cliente
   
   5 - Usuário tem garantido o acesso a um recurso antes inacessível
   
- ![recurso](https://github.com/rafaelngoncalves5/adote-pet-api/blob/login/logout/docs/auth-steps/e5.PNG)
+ ![recurso](https://github.com/rafaelngoncalves5/adote-pet-api/blob/master/docs/auth-steps/e5.PNG)
   
 </details>
