@@ -10,7 +10,10 @@ import schema
 from jose import jwt
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from schema import Animal, Usuario, DoesNotExist
-import env
+# import env
+
+from fastapi.middleware.cors import CORSMiddleware
+
 
 class PyAnimal(BaseModel):
     tipo: str
@@ -56,6 +59,17 @@ class PyLogin(BaseModel):
     senha: str
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 not_found_msg = {"status": "404 Not Found", "msg": "Recurso não encontrado!"}
 ok_msg = {"status": "200 OK", "msg": "Sucesso!"}
@@ -122,8 +136,8 @@ REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 ALGORITHM = "HS256"
 # Armazenar no os env dps
 # random.getrandbits(128)
-JWT_SECRET_KEY =  env.jwt_skey  # should be kept secret
-JWT_REFRESH_SECRET_KEY = env.jwt_rskey    # should be kept secret
+JWT_SECRET_KEY =  'env.jwt_skey'  # should be kept secret
+JWT_REFRESH_SECRET_KEY = 'env.jwt_rskey'    # should be kept secret
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="user/login",

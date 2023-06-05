@@ -1,7 +1,7 @@
 from peewee import *
 from datetime import datetime, date
 
-psql_db = PostgresqlDatabase('mydb', user='postgres', password='birdscooter123')
+psql_db = PostgresqlDatabase('adotepet', user='postgres', password='birdscooter123')
 
 # Conectando ao psql_db
 psql_db.connect()
